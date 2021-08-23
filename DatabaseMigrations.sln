@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31512.422
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DatabaseMigrations", "DatabaseMigrations\DatabaseMigrations.csproj", "{429DE8FE-D8BD-4C63-A260-C4F4D6D42583}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DatabaseMigrations.Tests", "DatabaseMigrations.Tests\DatabaseMigrations.Tests.csproj", "{7A5949CE-120A-48A1-B2C4-3733577E6C37}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{006872D3-49A7-4E57-8096-4FC754939A0D}"
+	ProjectSection(SolutionItems) = preProject
+		LICENSE = LICENSE
+		README.md = README.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{429DE8FE-D8BD-4C63-A260-C4F4D6D42583}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{429DE8FE-D8BD-4C63-A260-C4F4D6D42583}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{429DE8FE-D8BD-4C63-A260-C4F4D6D42583}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{429DE8FE-D8BD-4C63-A260-C4F4D6D42583}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7A5949CE-120A-48A1-B2C4-3733577E6C37}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A5949CE-120A-48A1-B2C4-3733577E6C37}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A5949CE-120A-48A1-B2C4-3733577E6C37}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A5949CE-120A-48A1-B2C4-3733577E6C37}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E9B4F903-AE29-4595-BDEA-0276F4DF9603}
+	EndGlobalSection
+EndGlobal
