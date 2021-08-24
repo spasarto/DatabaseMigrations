@@ -1,4 +1,8 @@
-﻿using DatabaseMigrations.Database;
+﻿using DatabaseMigrations;
+using DatabaseMigrations.Database;
+using Microsoft.Extensions.DependencyInjection;
+using System.Data;
+using System.Linq;
 
 namespace JournalWithScope
 {
@@ -13,8 +17,11 @@ namespace JournalWithScope
     PRIMARY KEY(Id, Scope)
 )";
             options.DoesJournalTableExistSql = $"select count(name) from sqlite_master where type = 'table' and name = 'MigrationHistory'";
-            options.InsertEntrySql = "insert into [MigrationHistory] ([Id], [Scope], [Applied]) values ('{0}', '{1}', '{2}')";
-            options.RetrieveEntriesSql = $"select [id], [Scope] from [MigrationHistory]";
+            options.InsertEntrySql = "insert into [MigrationHistory] ([Id], [Scope], [Applied]) values (@id, @scope, @timestamp)";
+            options.RetrieveEntrySql = $"select count(*) from [MigrationHistory] where [id] = @id and [Scope] = @scope";
+            options.Parameters = (migration, serviceProvider, dbParameterFactory) =>
+                    TableJournalOptions.DefaultParameters(migration, serviceProvider, dbParameterFactory)
+                                       .Append(dbParameterFactory().With("@scope", DbType.String, serviceProvider.GetService<ICustomScopeProvider>().Scope));
             return options;
         }
     }

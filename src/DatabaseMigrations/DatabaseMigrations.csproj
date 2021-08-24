@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <Nullable>enable</Nullable>
     <Description>Performs SQL based database migrations, structured similar to the Microsoft.Extensions.* libraries, with full support for async/await.</Description>
-    <Version>0.1-alpha1</Version>
+    <Version>0.1-alpha2</Version>
     <Copyright>https://licenses.nuget.org/MIT</Copyright>
     <PackageProjectUrl>https://github.com/spasarto/DatabaseMigrations</PackageProjectUrl>
     <RepositoryUrl>https://github.com/spasarto/DatabaseMigrations</RepositoryUrl>

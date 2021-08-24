@@ -13,7 +13,7 @@ namespace DatabaseMigrations.Database
         /// </summary>
         Task OpenAsync(CancellationToken cancellationToken);
         /// <summary>
-        /// Commits any changes to the migration execution history. Recommended you save your changes here in bulk instead of individually in TrackExecutionAsync.
+        /// Commits any changes to the migration execution history. Can be used to save in bulk.
         /// </summary>
         Task CloseAsync(CancellationToken cancellationToken);
         /// <summary>

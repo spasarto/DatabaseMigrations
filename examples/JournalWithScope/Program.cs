@@ -20,7 +20,6 @@ await new HostBuilder()
                 o.WithEmbeddedScripts(Assembly.GetExecutingAssembly());
             });
             services.AddSingleton<ICustomScopeProvider, CustomScopeProvider>();
-            services.AddTransient<ITableMigrationEntryCache, TableMigrationEntryCacheWithScope>();
             services.AddHostedService<RunMigrationsService>();
         })
         .ConfigureLogging(o => o.AddConsole())
