@@ -32,6 +32,7 @@ namespace DatabaseMigrations.Database
     public class TableMigrationEntryIdCache : ITableMigrationEntryCache
     {
         private readonly ISet<string> entries = new HashSet<string>();
+        private readonly ISet<string> workingSet = new HashSet<string>();
         private readonly TableJournalOptions tableJournalOptions;
 
         public TableMigrationEntryIdCache(IOptions<TableJournalOptions> tableJournalOptions)
@@ -40,9 +41,18 @@ namespace DatabaseMigrations.Database
         }
 
         public void AddEntryToCacheFromDatabase(DbDataReader reader) => entries.Add(reader.GetString(0));
-        public string FormatEntriesForInsert() => string.Join(Environment.NewLine, entries.Select(m => string.Format(tableJournalOptions.InsertEntrySql, m, DateTimeOffset.Now)));
-        public bool ShouldRun(Migration migration) => !entries.Contains(migration.Id);
-        public void TrackExecution(Migration migration) => entries.Add(migration.Id);
+        
+        public string FormatEntriesForInsert()
+        {
+            var sql = string.Join(Environment.NewLine, workingSet.Select(m => string.Format(tableJournalOptions.InsertEntrySql, m, DateTimeOffset.Now)));
+            entries.UnionWith(workingSet);
+            workingSet.Clear();
+            return sql;
+        }
+
+        public bool ShouldRun(Migration migration) => !entries.Contains(migration.Id) && !workingSet.Contains(migration.Id);
+        
+        public void TrackExecution(Migration migration) => workingSet.Add(migration.Id);
     }
 
 }

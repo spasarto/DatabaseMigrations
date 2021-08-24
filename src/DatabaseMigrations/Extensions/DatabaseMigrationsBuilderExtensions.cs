@@ -136,7 +136,7 @@ namespace DatabaseMigrations
         {
             config ??= o => { };
             builder.Services.AddTransient<IMigrationJournal, TableMigrationJournal>();
-            builder.Services.AddTransient<ITableMigrationEntryCache, TableMigrationEntryIdCache>();
+            builder.Services.AddSingleton<ITableMigrationEntryCache, TableMigrationEntryIdCache>();
             builder.Services.Configure(config);
 
             return builder;
