@@ -31,10 +31,9 @@ namespace DatabaseMigrations.ScriptProviders
 
         private string GetResourceContent(string n)
         {
-            using var stream = assembly.GetManifestResourceStream(n);
-            using var reader = new StreamReader(stream);
-
-            return reader.ReadToEnd();
+            using (var stream = assembly.GetManifestResourceStream(n))
+            using (var reader = new StreamReader(stream))
+                return reader.ReadToEnd();
         }
     }
 }

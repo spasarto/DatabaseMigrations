@@ -132,9 +132,8 @@ namespace DatabaseMigrations
         /// <summary>
         /// Stores the migration execution history in a table in your database. Note you may need to customize the options to support your provider, or use a custom journal if the default table journaling fails.
         /// </summary>
-        public static IDatabaseMigrationsBuilder WithTableMigrationJournal(this IDatabaseMigrationsBuilder builder, Action<TableJournalOptions>? config = null)
+        public static IDatabaseMigrationsBuilder WithTableMigrationJournal(this IDatabaseMigrationsBuilder builder, Action<TableJournalOptions> config)
         {
-            config ??= o => { };
             builder.Services.AddTransient<IMigrationJournal, TableMigrationJournal>();
             builder.Services.Configure(config);
 

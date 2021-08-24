@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Data.Common;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace DatabaseMigrations.Database
 {
@@ -14,8 +12,8 @@ namespace DatabaseMigrations.Database
             this.connFactory = connFactory;
         }
 
-        public ValueTask DisposeAsync() => new ValueTask();
+        public void Dispose() { }
 
-        public Task<DbConnection> GetAsync(CancellationToken cancellationToken) => Task.FromResult(connFactory());
+        public DbConnection Get() => connFactory();
     }
 }

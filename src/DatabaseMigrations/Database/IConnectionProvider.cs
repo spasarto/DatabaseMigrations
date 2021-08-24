@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 
 namespace DatabaseMigrations.Database
 {
-    public interface IConnectionProvider : IAsyncDisposable
+    public interface IConnectionProvider : IDisposable
     {
-        Task<DbConnection> GetAsync(CancellationToken cancellationToken);
+        DbConnection Get();
     }
 }

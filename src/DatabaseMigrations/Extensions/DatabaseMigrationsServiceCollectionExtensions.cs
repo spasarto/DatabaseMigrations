@@ -28,7 +28,7 @@ namespace DatabaseMigrations
             services.AddLogging();
 
             var builder = new DatabaseMigrationsBuilder(services);
-            builder.WithTableMigrationJournal();
+            builder.WithTableMigrationJournal(o => { });
 
             configure(builder);
             return services;

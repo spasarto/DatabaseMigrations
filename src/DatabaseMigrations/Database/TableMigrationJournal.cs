@@ -28,7 +28,7 @@ namespace DatabaseMigrations.Database
 
         public virtual async Task OpenAsync(CancellationToken cancellationToken)
         {
-            var conn = await this.connectionProvider.GetAsync(cancellationToken);
+            var conn = this.connectionProvider.Get();
             var cmd = conn.CreateCommand();
 
             bool tableExists = await DoesTableExistsAsync(cmd, cancellationToken);
@@ -41,7 +41,7 @@ namespace DatabaseMigrations.Database
 
         public virtual async Task<bool> ShouldRunMigrationAsync(Migration migration, CancellationToken cancellationToken)
         {
-            var conn = await this.connectionProvider.GetAsync(cancellationToken);
+            var conn = this.connectionProvider.Get();
             var cmd = conn.CreateCommand();
 
             try
@@ -63,7 +63,7 @@ namespace DatabaseMigrations.Database
 
         public virtual async Task TrackExecutionAsync(Migration migration, CancellationToken cancellationToken)
         {
-            var conn = await this.connectionProvider.GetAsync(cancellationToken);
+            var conn = this.connectionProvider.Get();
             var cmd = conn.CreateCommand();
 
             try

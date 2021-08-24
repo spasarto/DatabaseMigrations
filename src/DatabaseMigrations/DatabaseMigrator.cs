@@ -50,7 +50,7 @@ namespace DatabaseMigrations
             this.logger.LogInformation("Checking migration journal");
             await migrationJournal.OpenAsync(cancellationToken);
 
-            var conn = await connectionProvider.GetAsync(cancellationToken);
+            var conn = connectionProvider.Get();
             var cmd = conn.CreateCommand();
 
             this.logger.LogInformation("Processing scripts");
@@ -97,22 +97,17 @@ namespace DatabaseMigrations
                 this.logger.LogWarning("No migration scripts were executed!");
         }
 
-        private async IAsyncEnumerable<Migration> GetScriptsAsync([EnumeratorCancellation] CancellationToken cancellationToken)
+        private async Task<IEnumerable<Migration>> HydrateMigrationScripts(CancellationToken cancellationToken)
         {
+            var migrationList = new List<Migration>();
+
             foreach (var provider in this.scriptProviders)
             {
                 var scripts = await provider.GetScriptsAsync(cancellationToken);
 
                 foreach (var script in scripts)
-                    yield return script;
+                    migrationList.Add(script);
             }
-        }
-
-        private async Task<IEnumerable<Migration>> HydrateMigrationScripts(CancellationToken cancellationToken)
-        {
-            var migrationList = new List<Migration>();
-            await foreach (var migration in GetScriptsAsync(cancellationToken))
-                migrationList.Add(migration);
 
             return migrationOrderer.OrderMigrations(migrationList);
         }
