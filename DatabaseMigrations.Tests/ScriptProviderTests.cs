@@ -57,7 +57,7 @@ namespace DatabaseMigrations.Tests
             services.AddLogging(l => l.AddConsole());
             services.AddDatabaseMigrations(o =>
             {
-                o.WithConnection(sp => conn, owned: false);
+                o.WithSqliteConnection(sp => conn, owned: false);
                 o.WithEmbeddedScripts(Assembly.GetExecutingAssembly(), resourceName => resourceName.Contains("Migration"));
             });
 

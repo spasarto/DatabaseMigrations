@@ -1,9 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
-using System.Collections.Concurrent;
 using System.Data.Common;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -11,22 +9,23 @@ namespace DatabaseMigrations.Database
 {
     public class TableMigrationJournal : IMigrationJournal
     {
-        private readonly IConnectionProvider connectionProvider;
-        private readonly ILogger<TableMigrationJournal> logger;
-        private readonly ConcurrentDictionary<string, object?> entries;
-        private readonly TableJournalOptions tableJournalOptions;
+        protected readonly IConnectionProvider connectionProvider;
+        protected readonly ILogger<TableMigrationJournal> logger;
+        private readonly ITableMigrationEntryCache tableMigrationEntryCache;
+        protected readonly TableJournalOptions tableJournalOptions;
 
         public TableMigrationJournal(IConnectionProvider connectionProvider,
                                      IOptions<TableJournalOptions> tableJournalOptions,
-                                     ILogger<TableMigrationJournal> logger)
+                                     ILogger<TableMigrationJournal> logger,
+                                     ITableMigrationEntryCache tableMigrationEntryCache)
         {
             this.connectionProvider = connectionProvider;
             this.logger = logger;
-            this.entries = new ConcurrentDictionary<string, object?>();
+            this.tableMigrationEntryCache = tableMigrationEntryCache;
             this.tableJournalOptions = tableJournalOptions.Value;
         }
 
-        public async Task OpenAsync(CancellationToken cancellationToken)
+        public virtual async Task OpenAsync(CancellationToken cancellationToken)
         {
             var conn = await this.connectionProvider.GetAsync(cancellationToken);
             var cmd = conn.CreateCommand();
@@ -41,27 +40,21 @@ namespace DatabaseMigrations.Database
             using var reader = await cmd.ExecuteReaderAsync(cancellationToken);
             while (await reader.ReadAsync(cancellationToken))
             {
-                var id = reader.GetString(0);
-                this.entries.TryAdd(id, null);
+                tableMigrationEntryCache.AddEntryToCacheFromDatabase(reader);
             }
         }
 
-        public async Task CloseAsync(CancellationToken cancellationToken)
+        public virtual async Task CloseAsync(CancellationToken cancellationToken)
         {
-            if (entries.Count == 0)
-                return;
-
             var conn = await this.connectionProvider.GetAsync(cancellationToken);
             var cmd = conn.CreateCommand();
 
             try
             {
-                var now = DateTimeOffset.Now;
+                cmd.CommandText = this.tableMigrationEntryCache.FormatEntriesForInsert();
 
-                cmd.CommandText = string.Join(Environment.NewLine, entries.Keys
-                                                                  .Select(m => string.Format(tableJournalOptions.InsertEntrySql, m, now)));
-
-                await cmd.ExecuteNonQueryAsync(cancellationToken);
+                if (!string.IsNullOrEmpty(cmd.CommandText))
+                    await cmd.ExecuteNonQueryAsync(cancellationToken);
             }
             catch (Exception ex)
             {
@@ -71,21 +64,21 @@ namespace DatabaseMigrations.Database
             }
         }
 
-        public Task<bool> ShouldRunMigrationAsync(Migration migration, CancellationToken cancellationToken)
+        public virtual Task<bool> ShouldRunMigrationAsync(Migration migration, CancellationToken cancellationToken)
         {
-            bool exists = entries.ContainsKey(migration.Id);
+            bool exists = this.tableMigrationEntryCache.ShouldRun(migration);
 
             return Task.FromResult(exists);
         }
 
-        public Task TrackExecutionAsync(Migration migration, CancellationToken cancellationToken)
+        public virtual Task TrackExecutionAsync(Migration migration, CancellationToken cancellationToken)
         {
-            entries.TryAdd(migration.Id, null);
+            this.tableMigrationEntryCache.TrackExecution(migration);
 
             return Task.CompletedTask;
         }
 
-        private async Task<bool> DoesTableExistsAsync(DbCommand cmd, CancellationToken cancellationToken)
+        protected virtual async Task<bool> DoesTableExistsAsync(DbCommand cmd, CancellationToken cancellationToken)
         {
             try
             {
@@ -101,7 +94,7 @@ namespace DatabaseMigrations.Database
             }
         }
 
-        private async Task CreateTableAsync(DbCommand cmd, CancellationToken cancellationToken)
+        protected virtual async Task CreateTableAsync(DbCommand cmd, CancellationToken cancellationToken)
         {
             try
             {
