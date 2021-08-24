@@ -15,7 +15,7 @@ await new HostBuilder()
             {
                 o.WithConnection(sp => new SqliteConnection("Data Source=:memory:"));
                 o.WithTableMigrationJournal(t => t.ForCustomScope());
-                o.WithVariableSubstution("$username$", Environment.UserName);
+                o.WithVariableSubstution("$username$", sp => Environment.UserName);
                 o.WithPreprocessor<ScopeVariablePreprocessor>();
                 o.WithEmbeddedScripts(Assembly.GetExecutingAssembly());
             });

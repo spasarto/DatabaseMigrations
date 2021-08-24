@@ -136,10 +136,10 @@ You can specify code to mutate your script prior to execution. A common scenario
 services.AddDatabaseMigrations(o =>
 {
     // $variable$ can be anything here. 
-    o.WithVariableSubstution("$variable$", myValue);
+    o.WithVariableSubstution("$variable$", sp => myValue);
     
     // Call can be chained for multiple variables.
-    o.WithVariableSubstution("#variable2#", myValue2);
+    o.WithVariableSubstution("#variable2#", sp => myValue2);
 });
 ```
 

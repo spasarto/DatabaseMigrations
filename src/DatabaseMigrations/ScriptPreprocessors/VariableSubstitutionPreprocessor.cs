@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DatabaseMigrations.ScriptPreprocessors
@@ -6,9 +7,9 @@ namespace DatabaseMigrations.ScriptPreprocessors
     public class VariableSubstitutionPreprocessor : IScriptPreprocessor
     {
         private readonly string variableName;
-        private readonly string value;
+        private readonly Func<string> value;
 
-        public VariableSubstitutionPreprocessor(string variableName, string value)
+        public VariableSubstitutionPreprocessor(string variableName, Func<string> value)
         {
             this.variableName = variableName;
             this.value = value;
@@ -16,7 +17,7 @@ namespace DatabaseMigrations.ScriptPreprocessors
 
         public Task<string> ProcessScriptAsync(string script, CancellationToken cancellationToken)
         {
-            script = script.Replace(variableName, value);
+            script = script.Replace(variableName, value());
 
             return Task.FromResult(script);
         }

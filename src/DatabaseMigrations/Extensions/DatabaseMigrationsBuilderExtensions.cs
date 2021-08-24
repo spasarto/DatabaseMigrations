@@ -83,9 +83,9 @@ namespace DatabaseMigrations
         /// </summary>
         /// <param name="variableName">The name of variable to replace. This can be whatever you like. You might consider using special characters to avoid accidental replacement.</param>
         /// <param name="value">The value to substitue in at runtime.</param>
-        public static IDatabaseMigrationsBuilder WithVariableSubstution(this IDatabaseMigrationsBuilder builder, string variableName, string value)
+        public static IDatabaseMigrationsBuilder WithVariableSubstution(this IDatabaseMigrationsBuilder builder, string variableName, Func<IServiceProvider, string> value)
         {
-            builder.Services.TryAddEnumerable(ServiceDescriptor.Transient<IScriptPreprocessor, VariableSubstitutionPreprocessor>(sp => new VariableSubstitutionPreprocessor(variableName, value)));
+            builder.Services.TryAddEnumerable(ServiceDescriptor.Transient<IScriptPreprocessor, VariableSubstitutionPreprocessor>(sp => new VariableSubstitutionPreprocessor(variableName, () => value(sp))));
             return builder;
         }
 
@@ -125,7 +125,7 @@ namespace DatabaseMigrations
         public static IDatabaseMigrationsBuilder WithMigrationJournal<TMigrationJournal>(this IDatabaseMigrationsBuilder builder)
             where TMigrationJournal : class, IMigrationJournal
         {
-            builder.Services.AddTransient<IMigrationJournal, TMigrationJournal>(); 
+            builder.Services.AddTransient<IMigrationJournal, TMigrationJournal>();
             return builder;
         }
 

@@ -30,7 +30,7 @@ namespace DatabaseMigrations.Tests
             {
                 o.WithConnection(sp => conn, owned: false);
                 o.WithScriptProvider<TestScriptProvider>();
-                o.WithVariableSubstution("$variable$", expectedValue);
+                o.WithVariableSubstution("$variable$", sp => expectedValue);
             });
 
             var provider = services.BuildServiceProvider();
