@@ -1,7 +1,7 @@
 # Introduction 
 Performs SQL based database migrations, structured similar to the Microsoft.Extensions.* libraries, with full support for async/await.
 
-![Nuget](https://img.shields.io/nuget/dt/DatabaseMigrations)
+![Nuget](https://img.shields.io/nuget/v/DatabaseMigrations)
 
 # Getting Started
 To add DatabaseMigrations to your project, simply register it in your service collection:
