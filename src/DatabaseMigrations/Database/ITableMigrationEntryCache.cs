@@ -29,30 +29,48 @@ namespace DatabaseMigrations.Database
         bool ShouldRun(Migration migration);
     }
 
-    public class TableMigrationEntryIdCache : ITableMigrationEntryCache
+    public abstract class TableMigrationEntryCache<TEntity> : ITableMigrationEntryCache
     {
-        private readonly ISet<string> entries = new HashSet<string>();
-        private readonly ISet<string> workingSet = new HashSet<string>();
-        private readonly TableJournalOptions tableJournalOptions;
+        protected readonly ISet<TEntity> entries = new HashSet<TEntity>();
+        protected readonly ISet<TEntity> workingSet = new HashSet<TEntity>();
+        protected readonly TableJournalOptions tableJournalOptions;
 
-        public TableMigrationEntryIdCache(IOptions<TableJournalOptions> tableJournalOptions)
+        public TableMigrationEntryCache(IOptions<TableJournalOptions> tableJournalOptions)
         {
             this.tableJournalOptions = tableJournalOptions.Value;
         }
 
-        public void AddEntryToCacheFromDatabase(DbDataReader reader) => entries.Add(reader.GetString(0));
+        public void AddEntryToCacheFromDatabase(DbDataReader reader) => entries.Add(FromMigration(reader));
         
         public string FormatEntriesForInsert()
         {
-            var sql = string.Join(Environment.NewLine, workingSet.Select(m => string.Format(tableJournalOptions.InsertEntrySql, m, DateTimeOffset.Now)));
+            var sql = string.Join(Environment.NewLine, workingSet.Select(m => string.Format(tableJournalOptions.InsertEntrySql, GetColumnValues(m).Append(DateTimeOffset.Now).ToArray())));
             entries.UnionWith(workingSet);
             workingSet.Clear();
             return sql;
         }
 
-        public bool ShouldRun(Migration migration) => !entries.Contains(migration.Id) && !workingSet.Contains(migration.Id);
+        public bool ShouldRun(Migration migration) => !entries.Contains(FromMigration(migration)) 
+                                                   && !workingSet.Contains(FromMigration(migration));
         
-        public void TrackExecution(Migration migration) => workingSet.Add(migration.Id);
+        public void TrackExecution(Migration migration) => workingSet.Add(FromMigration(migration));
+
+        protected abstract TEntity FromMigration(Migration migration);
+        protected abstract TEntity FromMigration(DbDataReader reader);
+        protected abstract IEnumerable<object> GetColumnValues(TEntity entity);
     }
 
+    public class TableMigrationEntryIdCache : TableMigrationEntryCache<string>
+    {
+        public TableMigrationEntryIdCache(IOptions<TableJournalOptions> tableJournalOptions) 
+            : base(tableJournalOptions)
+        {
+        }
+
+        protected override string FromMigration(Migration migration) => migration.Id;
+
+        protected override string FromMigration(DbDataReader reader) => reader.GetString(0);
+
+        protected override IEnumerable<object> GetColumnValues(string entity) { yield return entity; }
+    }
 }
